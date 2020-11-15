@@ -111,9 +111,9 @@ def toy_map_problem_experiments():
     AStar_Problem = AStar(NullHeuristic)
     res2 = AStar_Problem.solve_problem(toy_map_problem)
 
-    print(res)
-    print("EX12: ", res == res2)
-    print(res2)
+    #print(res)
+    #print("EX12: ", res == res2)
+    #print(res2)
 
     # Ex.13
     # TODO: create an instance of `AStar` with the `AirDistHeuristic`,
