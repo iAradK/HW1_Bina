@@ -18,7 +18,9 @@ class AirDistHeuristic(HeuristicFunction):
         Use the method `calc_air_distance_from()` to calculate the air
          distance between two junctions.
         """
+        #TODO: maybe incorrect
         assert isinstance(self.problem, MapProblem)
         assert isinstance(state, MapState)
-
-        raise NotImplementedError  # TODO: remove this line!
+        return self.problem.streets_map[state.junction_id].calc_air_distance_from(self.problem.streets_map[self.problem.target_junction_id])
+        # return 5
+        # raise NotImplementedError  # TODO: remove this line!

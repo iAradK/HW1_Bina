@@ -32,7 +32,7 @@ class GraphProblemState(abc.ABC):
         This is an abstract method that must be implemented by the inheritor class.
         This method is used to determine whether two given state objects represents the same state.
         Notice: Never compare floats using `==` operator!
-        """
+        # """
         ...
 
     @abc.abstractmethod
