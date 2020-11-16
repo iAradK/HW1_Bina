@@ -83,6 +83,10 @@ class AStar(BestFirstSearch):
         if self.open.has_state(successor_node.state):
             already_found_node_with_same_state = self.open.get_node_by_state(successor_node.state)
             if already_found_node_with_same_state.expanding_priority > successor_node.expanding_priority:
+                already_found_node_with_same_state.cost = successor_node.cost
+                # already_found_node_with_same_state.g_cost = successor_node.g_cost
+                already_found_node_with_same_state.parent_search_node = successor_node.parent_search_node
+                already_found_node_with_same_state.expanding_priority = successor_node.expanding_priority
                 self.open.extract_node(already_found_node_with_same_state)
 
         if not self.open.has_state(successor_node.state):
