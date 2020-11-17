@@ -74,7 +74,7 @@ class AStar(BestFirstSearch):
 
         if self.close.has_state(successor_node.state): # If was closed but we found a shorter way open again
             already_found_node_with_same_state = self.close.get_node_by_state(successor_node.state)
-            if already_found_node_with_same_state.expanding_priority > successor_node.expanding_priority:
+            if already_found_node_with_same_state.cost > successor_node.cost:
                 self.close.remove_node(successor_node)
                 self.open.push_node(successor_node)
             else:

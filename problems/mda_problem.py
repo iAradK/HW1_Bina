@@ -80,20 +80,44 @@ class MDAState(GraphProblemState):
         #   implements the `__eq__()` method. The types `frozenset`, `ApartmentWithSymptomsReport`, `Laboratory`
         #   are also comparable (in the same manner).
 
-        if type(self.current_site) is not type(other.current_site) and self.current_site != other.current_site:
+        if type(self.current_site) is not type(other.current_site):
+            return False
+
+        if type(self.current_site) is Junction:
+            if other.current_site != self.current_site:
+                return False
+        elif other.current_site.location != self.current_site.location: # if type is not Junction
+            return False
+
+        """if type(self.current_site) is not type(other.current_site) and self.current_site != other.current_site:
+        return False"""
+        # so far current_site is equal
+
+        if self.nr_matoshim_on_ambulance != other.nr_matoshim_on_ambulance:
+            return False
+
+        if len(self.tests_on_ambulance) != len(other.tests_on_ambulance):
+            pritnt("WTF?!?!?!?!")
             return False
         for i in self.tests_on_ambulance:
-            if i not in other.tests_on_ambulance:
+            if i not in other.tests_on_ambulance: # checks if self contaions other but not if other contains self
+                # That's why we added the len check
                 return False
+
+        if len(self.tests_transferred_to_lab) != len(other.tests_transferred_to_lab):
+            pritnt("WTF?!?!?!?!")
+            return False
         for i in self.tests_transferred_to_lab:
             if i not in other.tests_transferred_to_lab:
                 return False
-        if self.nr_matoshim_on_ambulance != other.nr_matoshim_on_ambulance:
+
+        if len(self.visited_labs) != len(other.visited_labs):
+            pritnt("WTF?!?!?!?!")
             return False
         for i in self.visited_labs:
             if i not in other.visited_labs:
                 return False
-        raise NotImplementedError  # TODO: remove this line.
+        # raise NotImplementedError  # TODO: remove this line.
 
     def __hash__(self):
         """
@@ -251,15 +275,15 @@ class MDAProblem(GraphProblem):
             visited_labs = state_to_expand.visited_labs.union(frozenset([lab]))
             name = "go to lab " + lab.name
 
-            new_state = MDAState(current_site, tests_on_ambulance, tests_transferred_to_lab, nr_matoshim_on_ambulance,
-                                 visited_labs)
+            new_state = MDAState(current_site=current_site, tests_on_ambulance=tests_on_ambulance,
+                                 tests_transferred_to_lab = tests_transferred_to_lab,
+                                 nr_matoshim_on_ambulance= nr_matoshim_on_ambulance, visited_labs = visited_labs)
             cost = self.get_operator_cost(state_to_expand, new_state)
             yield OperatorResult(successor_state=new_state, operator_cost=cost, operator_name=name)
 
         for apt in self.get_reported_apartments_waiting_to_visit(state_to_expand):
             if state_to_expand.nr_matoshim_on_ambulance < apt.nr_roommates:
                 continue
-
             free_space = self.problem_input.ambulance.fridge_capacity * self.problem_input.ambulance.nr_fridges
             free_space -= state_to_expand.get_total_nr_tests_taken_and_stored_on_ambulance()
             if free_space < apt.nr_roommates:
@@ -271,8 +295,9 @@ class MDAProblem(GraphProblem):
             nr_matoshim_on_ambulance = state_to_expand.nr_matoshim_on_ambulance - apt.nr_roommates
             visited_labs = state_to_expand.visited_labs
             name = "visit " + apt.reporter_name
-            new_state = MDAState(current_site, tests_on_ambulance, tests_transferred_to_lab, nr_matoshim_on_ambulance,
-                                  visited_labs)
+            new_state = MDAState(current_site=current_site, tests_on_ambulance=tests_on_ambulance,
+                                 tests_transferred_to_lab = tests_transferred_to_lab,
+                                 nr_matoshim_on_ambulance= nr_matoshim_on_ambulance, visited_labs = visited_labs)
             cost = self.get_operator_cost(state_to_expand, new_state)
             yield OperatorResult(successor_state = new_state, operator_cost = cost, operator_name = name)
 
@@ -372,8 +397,12 @@ class MDAProblem(GraphProblem):
             nr_matoshim_on_ambulance: int
             visited_labs: FrozenSet[Laboratory]
         """
-        return (  set(self.problem_input.reported_apartments) -
-                 ( set(self.tests_transferred_to_lab) + list(self.tests_on_ambulance) ) )
+        a = list(state.tests_transferred_to_lab) + list(state.tests_on_ambulance)
+        b = set(self.problem_input.reported_apartments)
+        c = b - set(a)
+        c = sorted(c, key = lambda x : x.report_id)
+        # print(c)
+        return c
 
     def get_all_certain_junctions_in_remaining_ambulance_path(self, state: MDAState) -> List[Junction]:
         """
@@ -385,4 +414,10 @@ class MDAProblem(GraphProblem):
             Use the method `self.get_reported_apartments_waiting_to_visit(state)`.
             Use python's `sorted(some_list, key=...)` function.
         """
-        raise NotImplementedError  # TODO: remove this line!
+        l = [x.location for x in self.get_reported_apartments_waiting_to_visit(state)]
+        if type(state.current_site) is Junction:
+            l.append(state.current_site) # If junction type
+        else:
+            l.append(state.current_site.location) # If Laboratory or ApartmentWithSymptomsReport type
+
+        return sorted(l, key = lambda x: x.index )

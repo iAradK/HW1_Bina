@@ -134,7 +134,7 @@ def toy_map_problem_experiments():
     #       solve the same `toy_map_problem` with it and print the results (as before).
     AStar_Problem = AStar(AirDistHeuristic)
     res3 = AStar_Problem.solve_problem(toy_map_problem)
-    # print(res3)
+    print(res3)
     # exit()  # TODO: remove!
 
     # Ex.15
@@ -146,8 +146,8 @@ def toy_map_problem_experiments():
     #     (upper in this file).
     #  3. Call here the function `run_astar_for_weights_in_range()`
     #     with `AirDistHeuristic` and `toy_map_problem`.
-    # run_astar_for_weights_in_range(AirDistHeuristic, toy_map_problem)
-    # exit()  # TODO: remove!
+    run_astar_for_weights_in_range(AirDistHeuristic, toy_map_problem)
+    exit()  # TODO: remove!
 
 
 # --------------------------------------------------------------------
