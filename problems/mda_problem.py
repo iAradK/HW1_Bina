@@ -237,19 +237,19 @@ class MDAProblem(GraphProblem):
         assert isinstance(state_to_expand, MDAState)
 
         for lab in self.problem_input.laboratories:
-            if MDAState(state_to_expand).get_total_nr_tests_taken_and_stored_on_ambulance() == 0 and \
-                    (lab in MDAState(state_to_expand).visited_labs):
+            if state_to_expand.get_total_nr_tests_taken_and_stored_on_ambulance() == 0 and \
+                    (lab in state_to_expand.visited_labs):
                 continue
 
-            current_site = MDAState(lab)
-            tests_transferred_to_lab = MDAState(state_to_expand).tests_transferred_to_lab.\
-                union(MDAState(state_to_expand).tests_on_ambulance)
+            current_site = lab
+            tests_transferred_to_lab = state_to_expand.tests_transferred_to_lab.\
+                union(state_to_expand.tests_on_ambulance)
             tests_on_ambulance = frozenset([])
-            nr_matoshim_on_ambulance = MDAState(state_to_expand).nr_matoshim_on_ambulance
-            if lab in MDAState(state_to_expand).visited_labs:
-                nr_matoshim_on_ambulance += Laboratory(lab).max_nr_matoshim
-            visited_labs = MDAState(state_to_expand).visited_labs.union(frozenset([lab]))
-            name = "go to lab " + Laboratory(lab).name
+            nr_matoshim_on_ambulance = state_to_expand.nr_matoshim_on_ambulance
+            if lab in state_to_expand.visited_labs:
+                nr_matoshim_on_ambulance += lab.max_nr_matoshim
+            visited_labs = state_to_expand.visited_labs.union(frozenset([lab]))
+            name = "go to lab " + lab.name
 
             new_state = MDAState(current_site, tests_on_ambulance, tests_transferred_to_lab, nr_matoshim_on_ambulance,
                                  visited_labs)
@@ -257,19 +257,19 @@ class MDAProblem(GraphProblem):
             yield OperatorResult(successor_state=new_state, operator_cost=cost, operator_name=name)
 
         for apt in self.get_reported_apartments_waiting_to_visit(state_to_expand):
-            if MDAState(state_to_expand).nr_matoshim_on_ambulance < ApartmentWithSymptomsReport(apt).nr_roommates:
+            if state_to_expand.nr_matoshim_on_ambulance < apt.nr_roommates:
                 continue
             free_space = self.problem_input.ambulance.fridge_capacity * self.problem_input.ambulance.nr_fridges
-            free_space -= MDAState(state_to_expand).get_total_nr_tests_taken_and_stored_on_ambulance()
-            if free_space < ApartmentWithSymptomsReport(apt).nr_roommates:
+            free_space -= state_to_expand.get_total_nr_tests_taken_and_stored_on_ambulance()
+            if free_space < apt.nr_roommates:
                 continue
 
-            current_site = MDAState(apt)
-            tests_on_ambulance = MDAState(state_to_expand).tests_on_ambulance.union(frozenset([apt]))
-            tests_transferred_to_lab = MDAState(state_to_expand).tests_transferred_to_lab
-            nr_matoshim_on_ambulance = MDAState(state_to_expand).nr_matoshim_on_ambulance - apt.nr_roommates
-            visited_labs = MDAState(state_to_expand).visited_labs
-            name = "visit " + ApartmentWithSymptomsReport(apt).reporter_name
+            current_site = apt
+            tests_on_ambulance = state_to_expand.tests_on_ambulance.union(frozenset([apt]))
+            tests_transferred_to_lab = state_to_expand.tests_transferred_to_lab
+            nr_matoshim_on_ambulance = state_to_expand.nr_matoshim_on_ambulance - apt.nr_roommates
+            visited_labs = state_to_expand.visited_labs
+            name = "visit " + apt.reporter_name
             new_state = MDAState(current_site, tests_on_ambulance, tests_transferred_to_lab, nr_matoshim_on_ambulance,
                                   visited_labs)
             cost = self.get_operator_cost(state_to_expand, new_state)
@@ -372,7 +372,6 @@ class MDAProblem(GraphProblem):
             nr_matoshim_on_ambulance: int
             visited_labs: FrozenSet[Laboratory]
         """
-        # tests_transferred_to_lab, tests_on_ambulance
         return ( list(self.problem_input.reported_apartments) -
                  ( list(self.tests_transferred_to_lab) + list(self.tests_on_ambulance) ) )
 
