@@ -307,27 +307,26 @@ class MDAProblem(GraphProblem):
                                 its first `k` items and until the `n`-th item.
             You might find this tip useful for summing a slice of a collection.
         """
-        cost = MDACost
-        if type(prev_state.current_site) is ApartmentWithSymptomsReport or Laboratory:
+        if type(prev_state.current_site) is ApartmentWithSymptomsReport or type(prev_state.current_site) is Laboratory:
             prev_junc = prev_state.current_site.location
         else:
             prev_junc = prev_state.current_site
-        if type(prev_state.current_site) is ApartmentWithSymptomsReport or Laboratory:
+        if type(succ_state.current_site) is ApartmentWithSymptomsReport or type(succ_state.current_site) is Laboratory:
             succ_junc = succ_state.current_site.location
         else:
             succ_junc = succ_state.current_site
-        cost.distance_cost = self.map_distance_finder.get_map_cost_between(prev_junc, succ_junc)
+        distance_cost = self.map_distance_finder.get_map_cost_between(prev_junc, succ_junc)
         fridge_num = math.ceil(prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()/
                                    self.problem_input.ambulance.fridge_capacity)
         fridge_fuel_consumption = sum(self.problem_input.ambulance.fridges_gas_consumption_liter_per_meter[:fridge_num])
-        cost.monetary_cost = ((self.problem_input.ambulance.drive_gas_consumption_liter_per_meter +
-                               fridge_fuel_consumption)*cost.distance_cost)*self.problem_input.gas_liter_price
+        monetary_cost = ((self.problem_input.ambulance.drive_gas_consumption_liter_per_meter +
+                               fridge_fuel_consumption)*distance_cost)*self.problem_input.gas_liter_price
         if type(succ_state.current_site) is Laboratory:
-            cost.monetary_cost += succ_state.current_site.tests_transfer_cost
+            monetary_cost += succ_state.current_site.tests_transfer_cost
             if succ_state.current_site in prev_state.visited_labs:
-                cost.monetary_cost += succ_state.current_site.revisit_extra_cost
-        cost.tests_travel_distance_cost = cost.distance_cost*prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()
-        return cost
+                monetary_cost += succ_state.current_site.revisit_extra_cost
+        tests_travel_distance_cost = distance_cost*prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()
+        return MDACost(distance_cost, monetary_cost, tests_travel_distance_cost, self.optimization_objective)
         # raise NotImplementedError  # TODO: remove this line!
 
     def is_goal(self, state: GraphProblemState) -> bool:
@@ -373,8 +372,8 @@ class MDAProblem(GraphProblem):
             nr_matoshim_on_ambulance: int
             visited_labs: FrozenSet[Laboratory]
         """
-        return ( list(self.problem_input.reported_apartments) -
-                 ( list(self.tests_transferred_to_lab) + list(self.tests_on_ambulance) ) )
+        return (  set(self.problem_input.reported_apartments) -
+                 ( set(self.tests_transferred_to_lab) + list(self.tests_on_ambulance) ) )
 
     def get_all_certain_junctions_in_remaining_ambulance_path(self, state: MDAState) -> List[Junction]:
         """
