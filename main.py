@@ -113,8 +113,8 @@ def toy_map_problem_experiments():
     # Ex.10
     # TODO: Just run it and inspect the printed result.
     toy_map_problem = MapProblem(streets_map, 54, 549)
-    uc = UniformCost()
-    res = uc.solve_problem(toy_map_problem)
+    #uc = UniformCost()
+    #res = uc.solve_problem(toy_map_problem)
     #print(res)
 
     # Ex.12
@@ -123,7 +123,7 @@ def toy_map_problem_experiments():
     # Notice: AStar constructor receives the heuristic *type* (ex: `MyHeuristicClass`),
     #         and NOT an instance of the heuristic (eg: not `MyHeuristicClass()`).
     AStar_Problem = AStar(NullHeuristic)
-    res2 = AStar_Problem.solve_problem(toy_map_problem)
+   # res2 = AStar_Problem.solve_problem(toy_map_problem)
 
     # print(res)
     # print("EX12: ", res == res2)
@@ -133,8 +133,8 @@ def toy_map_problem_experiments():
     # TODO: create an instance of `AStar` with the `AirDistHeuristic`,
     #       solve the same `toy_map_problem` with it and print the results (as before).
     AStar_Problem = AStar(AirDistHeuristic)
-    res3 = AStar_Problem.solve_problem(toy_map_problem)
-    print(res3)
+    #res3 = AStar_Problem.solve_problem(toy_map_problem)
+    #print(res3)
     # exit()  # TODO: remove!
 
     # Ex.15
@@ -146,8 +146,8 @@ def toy_map_problem_experiments():
     #     (upper in this file).
     #  3. Call here the function `run_astar_for_weights_in_range()`
     #     with `AirDistHeuristic` and `toy_map_problem`.
-    run_astar_for_weights_in_range(AirDistHeuristic, toy_map_problem)
-    exit()  # TODO: remove!
+    #run_astar_for_weights_in_range(AirDistHeuristic, toy_map_problem)
+    #exit()  # TODO: remove!
 
 
 # --------------------------------------------------------------------
@@ -187,7 +187,7 @@ def basic_mda_problem_experiments():
     uf = UniformCost()
     res4 = uf.solve_problem(small_mda_problem_with_distance_cost)
     print(res4)
-    exit()  # TODO: remove!
+    #exit()  # TODO: remove!
 
 
 def mda_problem_with_astar_experiments():
