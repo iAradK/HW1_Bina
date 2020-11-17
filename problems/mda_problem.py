@@ -259,6 +259,7 @@ class MDAProblem(GraphProblem):
         for apt in self.get_reported_apartments_waiting_to_visit(state_to_expand):
             if state_to_expand.nr_matoshim_on_ambulance < apt.nr_roommates:
                 continue
+
             free_space = self.problem_input.ambulance.fridge_capacity * self.problem_input.ambulance.nr_fridges
             free_space -= state_to_expand.get_total_nr_tests_taken_and_stored_on_ambulance()
             if free_space < apt.nr_roommates:
