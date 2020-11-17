@@ -71,23 +71,30 @@ class AStar(BestFirstSearch):
         Remember: In A*, in contrast to uniform-cost, a successor state might have an already closed node,
                   but still could be improved.
         """
-
+        parent = successor_node.parent_search_node
         if self.close.has_state(successor_node.state): # If was closed but we found a shorter way open again
             already_found_node_with_same_state = self.close.get_node_by_state(successor_node.state)
             if already_found_node_with_same_state.cost > successor_node.cost:
-                self.close.remove_node(successor_node)
-                self.open.push_node(successor_node)
+                already_found_node_with_same_state.cost = parent.cost + successor_node.operator_cost
+                already_found_node_with_same_state.parent_search_node = parent
+                already_found_node_with_same_state.expanding_priority = self._calc_node_expanding_priority(
+                    already_found_node_with_same_state)
+                self.close.remove_node(already_found_node_with_same_state)
+                self.open.push_node(already_found_node_with_same_state)
             else:
                 return
 
         if self.open.has_state(successor_node.state):
             already_found_node_with_same_state = self.open.get_node_by_state(successor_node.state)
             if already_found_node_with_same_state.expanding_priority > successor_node.expanding_priority:
-                already_found_node_with_same_state.cost = successor_node.cost
-                # already_found_node_with_same_state.g_cost = successor_node.g_cost
-                already_found_node_with_same_state.parent_search_node = successor_node.parent_search_node
-                already_found_node_with_same_state.expanding_priority = successor_node.expanding_priority
-                self.open.extract_node(already_found_node_with_same_state)
+                already_found_node_with_same_state.cost = parent.cost + successor_node.operator_cost
+                already_found_node_with_same_state.parent_search_node = parent
+                already_found_node_with_same_state.expanding_priority = self._calc_node_expanding_priority(
+                    already_found_node_with_same_state)
+                # self.open.extract_node(already_found_node_with_same_state)
 
         if not self.open.has_state(successor_node.state):
+            successor_node.cost = parent.cost + successor_node.operator_cost
+            successor_node.expanding_priority = self._calc_node_expanding_priority(
+                successor_node)
             self.open.push_node(successor_node)
