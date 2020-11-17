@@ -19,7 +19,7 @@ class MDAState(GraphProblemState):
     This state includes:
         `current_site`:
             The current site where the ambulate is at.
-            The initial state stored in this field the initial ambulance location (which is a `Junction` object).
+            The initial state stored in this field is the initial ambulance location (which is a `Junction` object).
             Other states stores the last visited reported apartment (object of type `ApartmentWithSymptomsReport`),
              or the last visited laboratory (object of type `Laboratory`).
         `tests_on_ambulance`:
@@ -79,6 +79,20 @@ class MDAState(GraphProblemState):
         #   (using equals `==` operator) because the class `Junction` explicitly
         #   implements the `__eq__()` method. The types `frozenset`, `ApartmentWithSymptomsReport`, `Laboratory`
         #   are also comparable (in the same manner).
+
+        if type(self.current_site) is not type(other.current_site) and self.current_site != other.current_site:
+            return False
+        for i in self.tests_on_ambulance:
+            if i not in other.tests_on_ambulance:
+                return False
+        for i in self.tests_transferred_to_lab:
+            if i not in other.tests_transferred_to_lab:
+                return False
+        if self.nr_matoshim_on_ambulance != other.nr_matoshim_on_ambulance:
+            return False
+        for i in self.visited_labs:
+            if i not in other.visited_labs:
+                return False
         raise NotImplementedError  # TODO: remove this line.
 
     def __hash__(self):
@@ -98,9 +112,17 @@ class MDAState(GraphProblemState):
          Notice that this method can be implemented using a single line of code - do so!
          Use python's built-it `sum()` function.
          Notice that `sum()` can receive an *ITERATOR* as argument; That is, you can simply write something like this:
-        >>> sum(<some expression using item> for item in some_collection_of_items)
+        # current_site: Union[Junction, Laboratory, ApartmentWithSymptomsReport]
+        # tests_on_ambulance: FrozenSet[ApartmentWithSymptomsReport]
+        # tests_transferred_to_lab: FrozenSet[ApartmentWithSymptomsReport]
+        # nr_matoshim_on_ambulance: int
+        # visited_labs: FrozenSet[Laboratory]
+
+        # >>> sum(<some expression using item> for item in some_collection_of_items)
         """
-        raise NotImplementedError  # TODO: remove this line.
+        return sum(aprt.nr_roommates for aprt in self.tests_on_ambulance)
+
+        # raise NotImplementedError  # TODO: remove this line.
 
 
 class MDAOptimizationObjective(Enum):
@@ -245,7 +267,28 @@ class MDAProblem(GraphProblem):
                                 its first `k` items and until the `n`-th item.
             You might find this tip useful for summing a slice of a collection.
         """
-        raise NotImplementedError  # TODO: remove this line!
+        cost = MDACost
+        if type(prev_state.current_site) is ApartmentWithSymptomsReport or Laboratory:
+            prev_junc = prev_state.current_site.location
+        else:
+            prev_junc = prev_state.current_site
+        if type(prev_state.current_site) is ApartmentWithSymptomsReport or Laboratory:
+            succ_junc = succ_state.current_site.location
+        else:
+            succ_junc = succ_state.current_site
+        cost.distance_cost = self.map_distance_finder.get_map_cost_between(prev_junc, succ_junc)
+        fridge_num = math.ceil(prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()/
+                                   self.problem_input.ambulance.fridge_capacity)
+        fridge_fuel_consumption = sum(self.problem_input.ambulance.fridges_gas_consumption_liter_per_meter[:fridge_num])
+        cost.monetary_cost = ((self.problem_input.ambulance.drive_gas_consumption_liter_per_meter +
+                               fridge_fuel_consumption)*cost.distance_cost)*self.problem_input.gas_liter_price
+        if type(succ_state.current_site) is Laboratory:
+            cost.monetary_cost += succ_state.current_site.tests_transfer_cost
+            if succ_state.current_site in prev_state.visited_labs:
+                cost.monetary_cost += succ_state.current_site.revisit_extra_cost
+        cost.tests_travel_distance_cost = cost.distance_cost*prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()
+        return cost
+        # raise NotImplementedError  # TODO: remove this line!
 
     def is_goal(self, state: GraphProblemState) -> bool:
         """
@@ -255,7 +298,8 @@ class MDAProblem(GraphProblem):
          In order to create a set from some other collection (list/tuple) you can just `set(some_other_collection)`.
         """
         assert isinstance(state, MDAState)
-        raise NotImplementedError  # TODO: remove the line!
+        return set(self.problem_input.reported_apartments) == state.tests_transferred_to_lab and type(state.current_site) is Laboratory
+        # raise NotImplementedError  # TODO: remove the line!
 
     def get_zero_cost(self) -> Cost:
         """
