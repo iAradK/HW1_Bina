@@ -91,7 +91,7 @@ class AStar(BestFirstSearch):
                 already_found_node_with_same_state.parent_search_node = parent
                 already_found_node_with_same_state.expanding_priority = self._calc_node_expanding_priority(
                     already_found_node_with_same_state)
-                # self.open.extract_node(already_found_node_with_same_state)
+                self.open.extract_node(already_found_node_with_same_state)
 
         if not self.open.has_state(successor_node.state):
             successor_node.cost = parent.cost + successor_node.operator_cost
