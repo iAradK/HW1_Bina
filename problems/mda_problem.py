@@ -230,7 +230,9 @@ class MDAProblem(GraphProblem):
             spcae_left_in_fridges = self.problem_input.ambulance.total_fridges_capacity - \
                 state_to_expand.get_total_nr_tests_taken_and_stored_on_ambulance()
             apt_id = apt.report_id
-            if state_to_expand.nr_matoshim_on_ambulance < apt.nr_roommates or spcae_left_in_fridges < apt.nr_roommates:
+            if state_to_expand.nr_matoshim_on_ambulance < apt.nr_roommates:
+                continue
+            elif spcae_left_in_fridges < apt.nr_roommates:
                 continue
             else:
                 tests_on_ambulance = state_to_expand.tests_on_ambulance.union(frozenset([apt]))
