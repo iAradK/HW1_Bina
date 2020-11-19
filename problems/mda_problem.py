@@ -79,7 +79,7 @@ class MDAState(GraphProblemState):
         #   are also comparable (in the same manner).
         # raise NotImplementedError  # DONE: remove this line.
 
-        return  self.tests_on_ambulance == other.tests_on_ambulance and \
+        return self.tests_on_ambulance == other.tests_on_ambulance and \
                self.current_location == other.current_location and \
                self.tests_transferred_to_lab == other.tests_transferred_to_lab and \
                self.visited_labs == other.visited_labs and \
@@ -230,8 +230,9 @@ class MDAProblem(GraphProblem):
             spcae_left_in_fridges = self.problem_input.ambulance.total_fridges_capacity - \
                 state_to_expand.get_total_nr_tests_taken_and_stored_on_ambulance()
             apt_id = apt.report_id
-            if not (state_to_expand.nr_matoshim_on_ambulance < apt.nr_roommates or
-                    spcae_left_in_fridges < apt.nr_roommates):
+            if state_to_expand.nr_matoshim_on_ambulance < apt.nr_roommates or spcae_left_in_fridges < apt.nr_roommates:
+                continue
+            else:
                 tests_on_ambulance = state_to_expand.tests_on_ambulance.union(frozenset([apt]))
                 tests_transferred_to_lab = state_to_expand.tests_transferred_to_lab
                 nr_matoshim_on_ambulance = state_to_expand.nr_matoshim_on_ambulance - apt.nr_roommates
@@ -246,8 +247,10 @@ class MDAProblem(GraphProblem):
                 yield OperatorResult(successor_state=new_state, operator_cost=cost, operator_name=name)
 
         for lab in self.problem_input.laboratories:
-            if not ( state_to_expand.get_total_nr_tests_taken_and_stored_on_ambulance() == 0 and \
-                    (lab in state_to_expand.visited_labs) ):
+            if state_to_expand.get_total_nr_tests_taken_and_stored_on_ambulance() == 0 and \
+                    (lab in state_to_expand.visited_labs):
+                continue
+            else:
                 current_site = lab
                 tests_on_ambulance = frozenset([])
                 tests_transferred_to_lab = state_to_expand.tests_transferred_to_lab. \
