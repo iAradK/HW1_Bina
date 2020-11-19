@@ -275,9 +275,25 @@ class MDAProblem(GraphProblem):
                                         new_state.get_total_nr_tests_taken_and_stored_on_ambulance()
                 yield OperatorResult(successor_state=new_state, operator_cost=cost, operator_name=name)
 
-            else:
-                print("YOLO")
-
+        for lab in self.problem_input.laboratories:
+            if not ( state_to_expand.get_total_nr_tests_taken_and_stored_on_ambulance() == 0 and \
+                    (lab in state_to_expand.visited_labs) ):
+                current_site = lab
+                tests_on_ambulance = frozenset([])
+                tests_transferred_to_lab = state_to_expand.tests_transferred_to_lab. \
+                    union(state_to_expand.tests_on_ambulance)
+                nr_matoshim_on_ambulance = state_to_expand.nr_matoshim_on_ambulance
+                if lab not in state_to_expand.visited_labs:
+                    nr_matoshim_on_ambulance += lab.max_nr_matoshim
+                visited_labs = state_to_expand.visited_labs.union(frozenset([lab]))
+                new_state = MDAState(current_site=current_site, tests_on_ambulance=tests_on_ambulance,
+                                     tests_transferred_to_lab=tests_transferred_to_lab,
+                                     nr_matoshim_on_ambulance=nr_matoshim_on_ambulance, visited_labs=visited_labs)
+                cost = self.get_operator_cost(state_to_expand, new_state)
+                name = "visit " + lab.name
+                spcae_left_in_fridges2 = self.problem_input.ambulance.total_fridges_capacity - \
+                                        new_state.get_total_nr_tests_taken_and_stored_on_ambulance()
+                yield OperatorResult(successor_state=new_state, operator_cost=cost, operator_name=name)
 
 
     def get_operator_cost(self, prev_state: MDAState, succ_state: MDAState) -> MDACost:
