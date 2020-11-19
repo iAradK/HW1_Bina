@@ -72,48 +72,18 @@ class MDAState(GraphProblemState):
         This method is used to determine whether two given state objects represent the same state.
         """
         assert isinstance(other, MDAState)
-
-        # TODO [Ex.17]: Complete the implementation of this method!
+        # DONE [Ex.17]: Complete the implementation of this method!
         #  Note that you can simply compare two instances of `Junction` type
         #   (using equals `==` operator) because the class `Junction` explicitly
         #   implements the `__eq__()` method. The types `frozenset`, `ApartmentWithSymptomsReport`, `Laboratory`
         #   are also comparable (in the same manner).
+        # raise NotImplementedError  # DONE: remove this line.
 
-        if type(self.current_site) is not type(other.current_site):
-            return False
-
-        if type(self.current_site) is Junction:
-            if other.current_site != self.current_site:
-                return False
-        elif other.current_site.location != self.current_site.location:  # if type is not Junction
-            return False
-
-        """if type(self.current_site) is not type(other.current_site) and self.current_site != other.current_site:
-        return False"""
-        # so far current_site is equal
-
-        if self.nr_matoshim_on_ambulance != other.nr_matoshim_on_ambulance:
-            return False
-
-        if len(self.tests_on_ambulance) != len(other.tests_on_ambulance):
-            return False
-        for i in self.tests_on_ambulance:
-            if i not in other.tests_on_ambulance:  # checks if self contaions other but not if other contains self
-                # That's why we added the len check
-                return False
-
-        if len(self.tests_transferred_to_lab) != len(other.tests_transferred_to_lab):
-            return False
-        for i in self.tests_transferred_to_lab:
-            if i not in other.tests_transferred_to_lab:
-                return False
-
-        if len(self.visited_labs) != len(other.visited_labs):
-            return False
-        for i in self.visited_labs:
-            if i not in other.visited_labs:
-                return False
-        # raise NotImplementedError  # TODO: remove this line.
+        return  self.tests_on_ambulance == other.tests_on_ambulance and \
+               self.current_location == other.current_location and \
+               self.tests_transferred_to_lab == other.tests_transferred_to_lab and \
+               self.visited_labs == other.visited_labs and \
+               self.nr_matoshim_on_ambulance == other.nr_matoshim_on_ambulance
 
     def __hash__(self):
         """
@@ -291,8 +261,6 @@ class MDAProblem(GraphProblem):
                                      nr_matoshim_on_ambulance=nr_matoshim_on_ambulance, visited_labs=visited_labs)
                 cost = self.get_operator_cost(state_to_expand, new_state)
                 name = "visit " + lab.name
-                spcae_left_in_fridges2 = self.problem_input.ambulance.total_fridges_capacity - \
-                                        new_state.get_total_nr_tests_taken_and_stored_on_ambulance()
                 yield OperatorResult(successor_state=new_state, operator_cost=cost, operator_name=name)
 
 
@@ -361,7 +329,7 @@ class MDAProblem(GraphProblem):
         """
         assert isinstance(state, MDAState)
 
-        return set(self.problem_input.reported_apartments) == state.tests_transferred_to_lab and type(
+        return self.get_reported_apartments_waiting_to_visit(state) == [] and type(
             state.current_site) is Laboratory
         # raise NotImplementedError  # TODO: remove the line!
 
