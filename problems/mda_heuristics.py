@@ -51,8 +51,8 @@ class MDAMaxAirDistHeuristic(HeuristicFunction):
 
         return max(self.cached_air_distance_calculator.get_air_distance_between_junctions(node1, node2)
                    for node1 in self.problem.get_all_certain_junctions_in_remaining_ambulance_path(state)
-                   for node2 in state.get_total_nr_tests_taken_and_stored_on_ambulance(state)
-                   if node1 != node2)
+                   for node2 in self.problem.get_all_certain_junctions_in_remaining_ambulance_path(state)
+                   if node1.index != node2.index)
 
 
 class MDASumAirDistHeuristic(HeuristicFunction):
@@ -95,7 +95,35 @@ class MDASumAirDistHeuristic(HeuristicFunction):
         if len(all_certain_junctions_in_remaining_ambulance_path) < 2:
             return 0
 
-        raise NotImplementedError  # TODO: remove this line and complete the missing part here!
+        new_list = []
+        left_junctions = self.problem.get_all_certain_junctions_in_remaining_ambulance_path(state)
+        cur_location = state.current_site
+        if type(cur_location) is not Junction:
+            cur_location = cur_location.location
+        total_distance = 0
+        while (len(left_junctions) > 0):
+            min_val = None
+            next_node = None
+            for node in left_junctions:
+                if node == cur_location:
+                    continue
+                dist = self.cached_air_distance_calculator.get_air_distance_between_junctions(cur_location, node)
+                if next_node == None:
+                    next_node = node
+                    min_val = dist
+                else:
+                    if dist == min_val:
+                        if node.index < next_node.index:
+                            next_node = node
+                    elif dist < min_val:
+                        next_node = node
+                        min_val = dist
+            # Found closest node
+            total_distance += min_val
+            cur_location = next_node
+
+        print(new_list)
+        return total_distance
 
 
 class MDAMSTAirDistHeuristic(HeuristicFunction):

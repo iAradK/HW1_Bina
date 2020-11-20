@@ -74,7 +74,7 @@ class AStar(BestFirstSearch):
         parent = successor_node.parent_search_node
         if self.close.has_state(successor_node.state): # If was closed but we found a shorter way open again
             already_found_node_with_same_state = self.close.get_node_by_state(successor_node.state)
-            if already_found_node_with_same_state.cost > successor_node.cost:
+            if already_found_node_with_same_state.g_cost > successor_node.g_cost:
                 already_found_node_with_same_state.cost = parent.cost + successor_node.operator_cost
                 already_found_node_with_same_state.parent_search_node = parent
                 already_found_node_with_same_state.expanding_priority = self._calc_node_expanding_priority(
