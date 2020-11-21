@@ -199,23 +199,23 @@ def mda_problem_with_astar_experiments():
     # Ex.22
     # TODO: create an instance of `AStar` with the `MDAMaxAirDistHeuristic`,
     #       solve the `moderate_mda_problem_with_distance_cost` with it and print the results.
-    astar = AStar(MDAMaxAirDistHeuristic)
+    """astar = AStar(MDAMaxAirDistHeuristic)
     res5 = astar.solve_problem(moderate_mda_problem_with_distance_cost)
-    print(res5)
+    print(res5)"""
 
     # Ex.25
     # TODO: create an instance of `AStar` with the `MDASumAirDistHeuristic`,
     #       solve the `moderate_mda_problem_with_distance_cost` with it and print the results.
-    astar = AStar(MDASumAirDistHeuristic)
+    """astar = AStar(MDASumAirDistHeuristic)
     res6 = astar.solve_problem(moderate_mda_problem_with_distance_cost)
-    print(res6)
+    print(res6)"""
 
     # Ex.28
     # TODO: create an instance of `AStar` with the `MDAMSTAirDistHeuristic`,
     #       solve the `moderate_mda_problem_with_distance_cost` with it and print the results.
-    astar = AStar(MDAMSTAirDistHeuristic)
+    """astar = AStar(MDAMSTAirDistHeuristic)
     res7 = astar.solve_problem(moderate_mda_problem_with_distance_cost)
-    print(res7)
+    print(res7)"""
     # exit()  # TODO: remove!
 
 
@@ -230,13 +230,13 @@ def mda_problem_with_weighted_astar_experiments():
     # TODO: Call here the function `run_astar_for_weights_in_range()`
     #       with `MDAMSTAirDistHeuristic`
     #       over the `small_mda_problem_with_distance_cost`.
-    exit()  # TODO: remove!
+    #exit()  # TODO: remove!
 
     # Ex.30
     # TODO: Call here the function `run_astar_for_weights_in_range()`
     #       with `MDASumAirDistHeuristic`
     #       over the `moderate_mda_problem_with_distance_cost`.
-    exit()  # TODO: remove!
+    #exit()  # TODO: remove!
 
 
 def monetary_cost_objectives_mda_problem_experiments():
@@ -249,13 +249,17 @@ def monetary_cost_objectives_mda_problem_experiments():
     # Ex.32
     # TODO: create an instance of `UniformCost`
     #       solve the `small_mda_problem_with_monetary_cost` with it and print the results.
-    exit()  # TODO: remove!
+    """uf = UniformCost()
+    res32a = uf.solve_problem(small_mda_problem_with_monetary_cost)
+    print(res32a)
 
     # Ex.32
     # TODO: create an instance of `UniformCost`
     #       solve the `moderate_mda_problem_with_monetary_cost` with it and print the results.
-    exit()  # TODO: remove!
-
+    uf = UniformCost()
+    res32b = uf.solve_problem(moderate_mda_problem_with_monetary_cost)
+    print(res32b)
+"""
 
 def multiple_objectives_mda_problem_experiments():
     print()
@@ -267,7 +271,9 @@ def multiple_objectives_mda_problem_experiments():
     # Ex.35
     # TODO: create an instance of `AStar` with the `MDATestsTravelDistToNearestLabHeuristic`,
     #       solve the `moderate_mda_problem_with_tests_travel_dist_cost` with it and print the results.
-    exit()  # TODO: remove!
+    astar = AStar(MDATestsTravelDistToNearestLabHeuristic)
+    res35 = astar.solve_problem(moderate_mda_problem_with_tests_travel_dist_cost)
+    print(res35)
 
     # Ex.38
     # TODO: Implement the algorithm A_2 described in this exercise in the assignment instructions.
