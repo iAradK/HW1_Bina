@@ -299,6 +299,34 @@ class MDAProblem(GraphProblem):
                                 its first `k` items and until the `n`-th item.
             You might find this tip useful for summing a slice of a collection.
         """
+
+        # raise NotImplementedError  # DONE: remove this line!
+        distance = self.map_distance_finder.get_map_cost_between(prev_state.current_location,
+                                                                 succ_state.current_location)
+        if distance is None:
+            distance_cost = tests_travel_distance_cost = monetary_cost = float('inf')
+            return MDACost(distance_cost, tests_travel_distance_cost, monetary_cost)
+
+        nr_active = math.ceil(sum(d.nr_roommates for d in prev_state.tests_on_ambulance) /
+                              self.problem_input.ambulance.fridge_capacity)
+        # distance_cost = distance (redundant)
+        monetary_cost = self.problem_input.gas_liter_price * \
+                        (self.problem_input.ambulance.drive_gas_consumption_liter_per_meter +
+                         sum(self.problem_input.ambulance.fridges_gas_consumption_liter_per_meter[0:nr_active])) \
+                        * distance
+
+        if succ_state.current_location is Laboratory:
+            addition = 0
+            if prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() is not None:
+                addition += succ_state.current_site.tests_transfer_cost
+            if succ_state.current_location in prev_state.visited_labs:
+                addition += succ_state.current_site.revisit_extra_cost
+            monetary_cost += addition
+
+        tests_travel_distance_cost = sum(d.nr_roommates for d in prev_state.tests_on_ambulance) * distance
+        return MDACost(distance_cost=distance, tests_travel_distance_cost=tests_travel_distance_cost,
+                       monetary_cost=monetary_cost, optimization_objective=self.optimization_objective)
+        """
         if type(prev_state.current_site) is ApartmentWithSymptomsReport or type(prev_state.current_site) is Laboratory:
             prev_junc = prev_state.current_site.location
         else:
@@ -323,7 +351,7 @@ class MDAProblem(GraphProblem):
                 monetary_cost += succ_state.current_site.revisit_extra_cost
         tests_travel_distance_cost = distance_cost * prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()
         return MDACost(distance_cost, monetary_cost, tests_travel_distance_cost, self.optimization_objective)
-        # raise NotImplementedError  # TODO: remove this line!
+        # raise NotImplementedError  # TODO: remove this line!"""
 
     def is_goal(self, state: GraphProblemState) -> bool:
         """

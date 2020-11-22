@@ -95,7 +95,6 @@ class MDASumAirDistHeuristic(HeuristicFunction):
         if len(all_certain_junctions_in_remaining_ambulance_path) < 2:
             return 0
 
-        new_list = []
         left_junctions = self.problem.get_all_certain_junctions_in_remaining_ambulance_path(state)
         cur_location = state.current_site
         if type(cur_location) is not Junction:

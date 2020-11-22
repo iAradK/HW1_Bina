@@ -230,16 +230,18 @@ def mda_problem_with_weighted_astar_experiments():
     # TODO: Call here the function `run_astar_for_weights_in_range()`
     #       with `MDAMSTAirDistHeuristic`
     #       over the `small_mda_problem_with_distance_cost`.
-    #exit()  # TODO: remove!
+
+    #run_astar_for_weights_in_range(MDAMSTAirDistHeuristic, small_mda_problem_with_distance_cost)
 
     # Ex.30
     # TODO: Call here the function `run_astar_for_weights_in_range()`
     #       with `MDASumAirDistHeuristic`
     #       over the `moderate_mda_problem_with_distance_cost`.
-    #exit()  # TODO: remove!
+    #run_astar_for_weights_in_range(MDASumAirDistHeuristic, moderate_mda_problem_with_distance_cost)
 
 
 def monetary_cost_objectives_mda_problem_experiments():
+    """
     print()
     print('Solve the MDA problem (monetary objectives).')
 
@@ -249,7 +251,7 @@ def monetary_cost_objectives_mda_problem_experiments():
     # Ex.32
     # TODO: create an instance of `UniformCost`
     #       solve the `small_mda_problem_with_monetary_cost` with it and print the results.
-    """uf = UniformCost()
+    uf = UniformCost()
     res32a = uf.solve_problem(small_mda_problem_with_monetary_cost)
     print(res32a)
 
@@ -262,6 +264,7 @@ def monetary_cost_objectives_mda_problem_experiments():
 """
 
 def multiple_objectives_mda_problem_experiments():
+
     print()
     print('Solve the MDA problem (moderate input, distance & tests-travel-distance objectives).')
 
@@ -271,9 +274,9 @@ def multiple_objectives_mda_problem_experiments():
     # Ex.35
     # TODO: create an instance of `AStar` with the `MDATestsTravelDistToNearestLabHeuristic`,
     #       solve the `moderate_mda_problem_with_tests_travel_dist_cost` with it and print the results.
-    astar = AStar(MDATestsTravelDistToNearestLabHeuristic)
+    """astar = AStar(MDATestsTravelDistToNearestLabHeuristic)
     res35 = astar.solve_problem(moderate_mda_problem_with_tests_travel_dist_cost)
-    print(res35)
+    print(res35)"""
 
     # Ex.38
     # TODO: Implement the algorithm A_2 described in this exercise in the assignment instructions.
@@ -290,8 +293,11 @@ def multiple_objectives_mda_problem_experiments():
     #          previous parameters with their default values and pass an argument to a parameter that is positioned
     #          elsewhere next.
     #       Solve the `moderate_mda_problem_with_tests_travel_dist_cost` with it and print the results.
-    exit()  # TODO: remove!
+    astar38 = AStar(MDAMSTAirDistHeuristic)
+    optimal_distance_cost = astar38.solve_problem(moderate_mda_problem_with_distance_cost).total_cost.dist
+    print(optimal_distance_cost)
 
+    exit()
 
 def mda_problem_with_astar_epsilon_experiments():
     print()
