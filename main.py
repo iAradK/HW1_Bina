@@ -293,9 +293,14 @@ def multiple_objectives_mda_problem_experiments():
     #          previous parameters with their default values and pass an argument to a parameter that is positioned
     #          elsewhere next.
     #       Solve the `moderate_mda_problem_with_tests_travel_dist_cost` with it and print the results.
-    astar38 = AStar(MDAMSTAirDistHeuristic)
-    optimal_distance_cost = astar38.solve_problem(moderate_mda_problem_with_distance_cost).problem.sol
-    print( optimal_distance_cost)
+    astar38a = AStar(MDAMSTAirDistHeuristic)
+    optimal_distance_cost = astar38a.solve_problem(moderate_mda_problem_with_distance_cost).solution_cost.get_g_cost()
+    epsilon = 0.6
+    range = (1 + epsilon) * optimal_distance_cost
+    astar38b = AStar(MDATestsTravelDistToNearestLabHeuristic,
+                     open_criterion = lambda node : range >= node.cost.distance_cost)
+    res38 = astar38b.solve_problem(moderate_mda_problem_with_tests_travel_dist_cost)
+    print(res38)
     exit()
 
 def mda_problem_with_astar_epsilon_experiments():
