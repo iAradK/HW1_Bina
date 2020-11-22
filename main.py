@@ -294,9 +294,8 @@ def multiple_objectives_mda_problem_experiments():
     #          elsewhere next.
     #       Solve the `moderate_mda_problem_with_tests_travel_dist_cost` with it and print the results.
     astar38 = AStar(MDAMSTAirDistHeuristic)
-    optimal_distance_cost = astar38.solve_problem(moderate_mda_problem_with_distance_cost).total_cost.dist
-    print(optimal_distance_cost)
-
+    optimal_distance_cost = astar38.solve_problem(moderate_mda_problem_with_distance_cost).problem.sol
+    print( optimal_distance_cost)
     exit()
 
 def mda_problem_with_astar_epsilon_experiments():
