@@ -58,7 +58,7 @@ class AStarEpsilon(AStar):
          order (small to big). Popping / peeking `open` returns the node with
          the smallest `f`.
         For each node (candidate) in the created focal, calculate its priority
-         by callingthe function `self.within_focal_priority_function` on it.
+         by calling the function `self.within_focal_priority_function` on it.
          This function expects to get 3 values: the node, the problem and the
          solver (self). You can create an array of these priority value. Then,
          use `np.argmin()` to find the index of the item (within this array)
@@ -71,5 +71,37 @@ class AStarEpsilon(AStar):
          method should be kept in the open queue at the end of this method, except
          for the extracted (and returned) node.
         """
+        if self.open.peek_next_node() is None:
+            return None
 
-        raise NotImplementedError  # TODO: remove!
+        min_expanding_priority = None
+        temp_node_list = []
+        for i in range(self.open.__len__()):
+            node = self.open.pop_next_node()
+            if min_expanding_priority is None or node.expanding_priority < min_expanding_priority:
+                min_expanding_priority = node.expanding_priority
+            temp_node_list.append(node)
+
+        for i in range(temp_node_list.__len__()):
+            self.open.push_node(temp_node_list[i])
+
+        maximum_expanding_priority = (1 + self.focal_epsilon) * min_expanding_priority
+        temp_node_list = []
+        focal = []
+        for i in range(self.open.__len__()):
+            if i > self.max_focal_size:
+                break
+            node = self.open.pop_next_node()
+            if node.expanding_priority <= maximum_expanding_priority:
+                focal.append(node)
+            temp_node_list.append(node)
+
+        for i in range(temp_node_list.__len__()):
+            self.open.push_node(temp_node_list[i])
+
+        priorities = []
+        for node in focal:
+            priorities.append(self.within_focal_priority_function(node, problem, self))
+        ret_node_index = np.argmin(priorities)
+        self.open.extract_node(focal[ret_node_index]) # TODO: change focal[ret_node_index] (ret_index might be array)
+        return focal[ret_node_index]
