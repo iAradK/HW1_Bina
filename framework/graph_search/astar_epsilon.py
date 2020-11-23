@@ -103,5 +103,9 @@ class AStarEpsilon(AStar):
         for node in focal:
             priorities.append(self.within_focal_priority_function(node, problem, self))
         ret_node_index = np.argmin(priorities)
-        self.open.extract_node(focal[ret_node_index]) # TODO: change focal[ret_node_index] (ret_index might be array)
-        return focal[ret_node_index]
+        if type(ret_node_index) is list:
+            ret_node = focal[ret_node_index[0]]
+        else:
+            ret_node = focal[ret_node_index]
+        self.open.extract_node(ret_node) # TODO: change focal[ret_node_index] (ret_index might be array)
+        return ret_node
