@@ -253,7 +253,6 @@ class MDAProblem(GraphProblem):
                     (lab in state_to_expand.visited_labs):
                 continue
             else:
-                current_site = lab
                 tests_on_ambulance = frozenset([])
                 tests_transferred_to_lab = state_to_expand.tests_transferred_to_lab. \
                     union(state_to_expand.tests_on_ambulance)
@@ -261,7 +260,7 @@ class MDAProblem(GraphProblem):
                 if lab not in state_to_expand.visited_labs:
                     nr_matoshim_on_ambulance += lab.max_nr_matoshim
                 visited_labs = state_to_expand.visited_labs.union(frozenset([lab]))
-                new_state = MDAState(current_site=current_site, tests_on_ambulance=tests_on_ambulance,
+                new_state = MDAState(current_site=lab, tests_on_ambulance=tests_on_ambulance,
                                      tests_transferred_to_lab=tests_transferred_to_lab,
                                      nr_matoshim_on_ambulance=nr_matoshim_on_ambulance, visited_labs=visited_labs)
                 cost = self.get_operator_cost(state_to_expand, new_state)
@@ -299,51 +298,31 @@ class MDAProblem(GraphProblem):
                                 its first `k` items and until the `n`-th item.
             You might find this tip useful for summing a slice of a collection.
         """
+        distance_cost = self.map_distance_finder.get_map_cost_between(prev_state.current_location,
+                                                                       succ_state.current_location)
+        if distance_cost is None:
+             return MDACost(float('inf'), float('inf'), float('inf'), self.optimization_objective)
+        fridge_num = math.ceil(prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() /
+                                self.problem_input.ambulance.fridge_capacity)
+        fridge_fuel_consumption = sum(self.problem_input.ambulance.fridges_gas_consumption_liter_per_meter[0:fridge_num])
+        monetary_cost = ((self.problem_input.ambulance.drive_gas_consumption_liter_per_meter +
+                          fridge_fuel_consumption) * distance_cost) * self.problem_input.gas_liter_price
 
-        # distance_cost = self.map_distance_finder.get_map_cost_between(prev_state.current_location,
-        #                                                               succ_state.current_location)
-        # if distance_cost is None:
-        #     return MDACost(float('inf'), float('inf'), float('inf'), self.optimization_objective)
-        # fridge_num = math.ceil(prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() /
-        #                        self.problem_input.ambulance.fridge_capacity)
-        # fridge_fuel_consumption = sum(self.problem_input.ambulance.fridges_gas_consumption_liter_per_meter[0:fridge_num])
-        # monetary_cost = ((self.problem_input.ambulance.drive_gas_consumption_liter_per_meter +
-        #                   fridge_fuel_consumption) * distance_cost) * self.problem_input.gas_liter_price
-        # if type(succ_state.current_site) is Laboratory:
-        #     if prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() == 0:
-        #         monetary_cost += succ_state.current_site.tests_transfer_cost
-        #     if succ_state.current_location in prev_state.visited_labs:
-        #         monetary_cost += succ_state.current_site.revisit_extra_cost
-        # tests_travel_distance_cost = distance_cost * prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()
-        # return MDACost(distance_cost, monetary_cost, tests_travel_distance_cost, self.optimization_objective)
-        distance = self.map_distance_finder.get_map_cost_between(prev_state.current_location,
-                                                                 succ_state.current_location)
-        if distance is None:
-            distance_cost = tests_travel_distance_cost = monetary_cost = float('inf')
-            return MDACost(distance_cost, tests_travel_distance_cost, monetary_cost)
-
-        nr_active = math.ceil(sum(d.nr_roommates for d in prev_state.tests_on_ambulance) /
-                              self.problem_input.ambulance.fridge_capacity)
-        # distance_cost = distance (redundant)
-        monetary_cost = self.problem_input.gas_liter_price * \
-                        (self.problem_input.ambulance.drive_gas_consumption_liter_per_meter +
-                         sum(self.problem_input.ambulance.fridges_gas_consumption_liter_per_meter[0:nr_active])) \
-                        * distance
-
-        labs_locations = [lab.location for lab in self.problem_input.laboratories]
-
-        if succ_state.current_location in labs_locations:
-            addition = 0
-            if prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() != 0:
-                addition += succ_state.current_site.tests_transfer_cost
+        labs_locations = visited_labs_locations = []
+        if type(succ_state.current_location) is Junction:
+            labs_locations = [lab.location for lab in self.problem_input.laboratories]
             visited_labs_locations = [lab.location for lab in prev_state.visited_labs]
-            if succ_state.current_location in visited_labs_locations:
-                addition += succ_state.current_site.revisit_extra_cost
-            monetary_cost += addition
 
-        tests_travel_distance_cost = sum(d.nr_roommates for d in prev_state.tests_on_ambulance) * distance
-        return MDACost(distance_cost=distance, tests_travel_distance_cost=tests_travel_distance_cost,
-                       monetary_cost=monetary_cost, optimization_objective=self.optimization_objective)
+        if type(succ_state.current_site) is Laboratory or succ_state.current_site in labs_locations:
+             if prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() != 0:
+                 monetary_cost += succ_state.current_site.tests_transfer_cost
+             if succ_state.current_location in prev_state.visited_labs or \
+                     succ_state.current_location in visited_labs_locations:
+                 monetary_cost += succ_state.current_site.revisit_extra_cost
+
+        tests_travel_distance_cost = distance_cost * prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()
+        return MDACost(distance_cost, monetary_cost, tests_travel_distance_cost, self.optimization_objective)
+
 
     def is_goal(self, state: GraphProblemState) -> bool:
         """
