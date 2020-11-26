@@ -267,6 +267,7 @@ def monetary_cost_objectives_mda_problem_experiments():
     uf = UniformCost()
     res32b = uf.solve_problem(moderate_mda_problem_with_monetary_cost)
     print(res32b)
+    exit()
 
 
 def multiple_objectives_mda_problem_experiments():

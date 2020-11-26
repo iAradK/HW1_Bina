@@ -316,7 +316,6 @@ class MDAProblem(GraphProblem):
         #         monetary_cost += succ_state.current_site.revisit_extra_cost
         # tests_travel_distance_cost = distance_cost * prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()
         # return MDACost(distance_cost, monetary_cost, tests_travel_distance_cost, self.optimization_objective)
-
         distance = self.map_distance_finder.get_map_cost_between(prev_state.current_location,
                                                                  succ_state.current_location)
         if distance is None:
@@ -331,11 +330,14 @@ class MDAProblem(GraphProblem):
                          sum(self.problem_input.ambulance.fridges_gas_consumption_liter_per_meter[0:nr_active])) \
                         * distance
 
-        if succ_state.current_location is Laboratory:
+        labs_locations = [lab.location for lab in self.problem_input.laboratories]
+
+        if succ_state.current_location in labs_locations:
             addition = 0
-            if prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() is not None:
+            if prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() != 0:
                 addition += succ_state.current_site.tests_transfer_cost
-            if succ_state.current_location in prev_state.visited_labs:
+            visited_labs_locations = [lab.location for lab in prev_state.visited_labs]
+            if succ_state.current_location in visited_labs_locations:
                 addition += succ_state.current_site.revisit_extra_cost
             monetary_cost += addition
 
