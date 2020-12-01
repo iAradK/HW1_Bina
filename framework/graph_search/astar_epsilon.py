@@ -89,7 +89,7 @@ class AStarEpsilon(AStar):
         temp_node_list = []
         focal = []
         for i in range(self.open.__len__()):
-            if i > self.max_focal_size:
+            if i >=  self.max_focal_size:
                 break
             node = self.open.pop_next_node()
             if node.expanding_priority <= maximum_expanding_priority:
@@ -108,4 +108,6 @@ class AStarEpsilon(AStar):
         else:
             ret_node = focal[ret_node_index]
         self.open.extract_node(ret_node) # TODO: change focal[ret_node_index] (ret_index might be array)
+        if self.use_close:
+            self.close.add_node(ret_node)
         return ret_node
