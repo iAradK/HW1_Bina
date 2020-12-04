@@ -289,7 +289,6 @@ def multiple_objectives_mda_problem_experiments():
     #          previous parameters with their default values and pass an argument to a parameter that is positioned
     #          elsewhere next.
     #       Solve the `moderate_mda_problem_with_tests_travel_dist_cost` with it and print the results.
-    print('Ex.38')
     astar38a = AStar(MDAMSTAirDistHeuristic)
     optimal_distance_cost = astar38a.solve_problem(moderate_mda_problem_with_distance_cost).solution_cost.get_g_cost()
     epsilon = 0.6
@@ -324,7 +323,6 @@ def mda_problem_with_astar_epsilon_experiments():
     #       Use focal_epsilon=0.23, and max_focal_size=40.
     #       Use within_focal_priority_function=within_focal_h_sum_priority_function. This function
     #        (defined just above) is internally using the `MDASumAirDistHeuristic`.
-    print('Ex.43')
     astar_eps = AStarEpsilon(MDAMSTAirDistHeuristic, focal_epsilon=0.23, max_focal_size=40,
                              within_focal_priority_function=within_focal_h_sum_priority_function)
     res = astar_eps.solve_problem(small_mda_problem_with_distance_cost)
@@ -342,7 +340,6 @@ def mda_problem_anytime_astar_experiments():
     # TODO: create an instance of `AnytimeAStar` once with the `MDAMSTAirDistHeuristic`, with
     #       `max_nr_states_to_expand_per_iteration` set to 1000, solve the
     #       `moderate_mda_problem_with_distance_cost` with it and print the results.
-    print('Ex.46')
     anytime_astar = AnytimeAStar(MDAMSTAirDistHeuristic,max_nr_states_to_expand_per_iteration=1000)
     res = anytime_astar.solve_problem(moderate_mda_problem_with_distance_cost)
     print(res)
